@@ -2,7 +2,7 @@
 
 ### 🚀 Strategic Sourcing & Inventory Optimization Toolkit
 
-**Keeler Procurement Suite** is a bespoke web-based decision support system designed for Senior Engineering Buyers. It bridges the gap between complex spreadsheets and quick strategic decision-making, providing real-time visualization for "Make vs. Buy" scenarios and inventory optimization.
+** Procurement Suite** is a bespoke web-based decision support system designed for Senior Engineering Buyers. It bridges the gap between complex spreadsheets and quick strategic decision-making, providing real-time visualization for "Make vs. Buy" scenarios and inventory optimization.
 
 ---
 
@@ -26,7 +26,7 @@
 
 ### 🔮 Future Enhancements Roadmap
 
-We are actively developing V2.0 to further integrate with Keeler's supply chain workflow. Planned features include:
+We are actively developing V2.0 to further integrate with 's supply chain workflow. Planned features include:
 
 #### **Phase 1: Global Sourcing Tools**
 * **💱 Multi-Currency Toggle:** Real-time switching between GBP (£), USD ($), and CNY (¥) to compare international supplier quotes instantly.
@@ -46,7 +46,7 @@ We are actively developing V2.0 to further integrate with Keeler's supply chain 
 
 * **Core:** HTML5, CSS3, Vanilla JavaScript (Zero dependencies, runs offline).
 * **Visualization Engine:** Plotly.js for high-precision interactive charting.
-* **Design System:** "Keeler Clinical" Theme – Clean, medical-grade UI with high contrast for readability.
+* **Design System:** " Clinical" Theme – Clean, medical-grade UI with high contrast for readability.
 * **Deployment:** Static Web App (Netlify/Vercel compatible) or local Intranet hosting.
 
 ---
