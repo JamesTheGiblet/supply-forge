@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keeler Procurement Suite</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Keeler Branding Colors (Medical/Precision) */
+            --keeler-blue: #009CA6;    /* Teal/Cyan common in medical */
+            --keeler-dark: #004B5A;
+            --text-main: #1e293b;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --radius: 6px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg-page); color: var(--text-main); padding-bottom: 60px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        /* Header */
+        .header { background: white; border-bottom: 4px solid var(--keeler-blue); padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .brand { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .brand span { color: var(--keeler-blue); }
+
+        /* Tabs */
+        .nav-tabs { display: flex; gap: 10px; margin: 20px 0; background: #e2e8f0; padding: 4px; border-radius: 8px; }
+        .tab-btn { flex: 1; border: none; background: none; padding: 12px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+        .tab-btn.active { background: white; color: var(--keeler-dark); shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+
+        /* Cards & Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: var(--card-bg); padding: 24px; border-radius: var(--radius); border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card h3 { color: var(--keeler-dark); margin-bottom: 20px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+
+        /* Inputs */
+        .input-group { margin-bottom: 16px; }
+        .input-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #64748b; }
+        .input-row { display: flex; align-items: center; gap: 10px; }
+        input[type=number] { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600; color: var(--text-main); }
+        
+        /* Results */
+        .metric-box { background: #f0fdFA; border: 1px solid #ccfbf1; padding: 16px; border-radius: 6px; text-align: center; margin-bottom: 10px; }
+        .metric-val { font-size: 1.8rem; font-weight: 800; color: var(--keeler-dark); }
+        .metric-lbl { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #576c79; font-weight: 700; }
+
+        @media(max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand">KEELER <span>SOURCING</span></div>
+        <div style="font-size:0.8rem; font-weight:600; color:#64748b;">Engineering Buyer Toolkit</div>
+    </div>
+
+    <div class="container">
+        
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-makebuy', this)">🏭 Make vs. Buy</button>
+            <button class="tab-btn" onclick="switchTab('tab-eoq', this)">📦 Inventory Optimizer</button>
+        </div>
+
+        <div id="tab-makebuy" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <h3><i class="fas fa-calculator"></i> Cost Parameters</h3>
+                    
+                    <div style="background:#f8fafc; padding:15px; border-radius:6px; margin-bottom:15px; border-left:4px solid var(--keeler-blue);">
+                        <strong style="display:block; margin-bottom:10px;">Option A: Make In-House</strong>
+                        <div class="input-group">
+                            <label class="input-label">Fixed Setup Cost (£)</label>
+                            <input type="number" id="make-fixed" value="5000" oninput="calcMakeBuy()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Variable Cost per Unit (£)</label>
+                            <input type="number" id="make-var" value="12.50" oninput="calcMakeBuy()">
+                        </div>
+                    </div>
+
+                    <div style="background:#fff7ed; padding:15px; border-radius:6px; border-left:4px solid #f97316;">
+                        <strong style="display:block; margin-bottom:10px;">Option B: Outsource (Buy)</strong>
+                        <div class="input-group">
+                            <label class="input-label">Supplier Tooling/NRE (£)</label>
+                            <input type="number" id="buy-fixed" value="500" oninput="calcMakeBuy()">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Supplier Unit Price (£)</label>
+                            <input type="number" id="buy-var" value="18.00" oninput="calcMakeBuy()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Break-Even Analysis</h3>
+                    <div id="chart-makebuy" style="height:250px;"></div>
+                    <div class="metric-box" id="res-breakeven-box">
+                        <div class="metric-val" id="res-breakeven">818</div>
+                        <div class="metric-lbl">Break-Even Quantity (Units)</div>
+                    </div>
+                    <div id="rec-text" style="text-align:center; font-weight:600; color:var(--keeler-dark);"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-eoq" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <h3><i class="fas fa-boxes"></i> Demand Data</h3>
+                    <div class="input-group">
+                        <label class="input-label">Annual Demand (Units)</label>
+                        <input type="number" id="eoq-demand" value="2500" oninput="calcEOQ()">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Unit Cost (£)</label>
+                        <input type="number" id="eoq-price" value="45.00" oninput="calcEOQ()">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Ordering Cost (£ per order)</label>
+                        <input type="number" id="eoq-ordercost" value="50" oninput="calcEOQ()">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Holding Cost (% of value)</label>
+                        <input type="number" id="eoq-holding" value="20" oninput="calcEOQ()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-check-circle"></i> Optimal Strategy</h3>
+                    <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="metric-box">
+                            <div class="metric-val" id="res-eoq">167</div>
+                            <div class="metric-lbl">Optimal Order Qty</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-val" id="res-orders">15</div>
+                            <div class="metric-lbl">Orders Per Year</div>
+                        </div>
+                    </div>
+                    <div id="chart-eoq" style="height:220px; margin-top:10px;"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(d=>d.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            setTimeout(() => {
+                Plotly.Plots.resize('chart-makebuy');
+                Plotly.Plots.resize('chart-eoq');
+            }, 50);
+        }
+
+        function calcMakeBuy() {
+            const F_make = parseFloat(document.getElementById('make-fixed').value);
+            const V_make = parseFloat(document.getElementById('make-var').value);
+            const F_buy = parseFloat(document.getElementById('buy-fixed').value);
+            const V_buy = parseFloat(document.getElementById('buy-var').value);
+
+            // Break Even: F1 + V1*Q = F2 + V2*Q  => Q = (F1 - F2) / (V2 - V1)
+            let Q_be = (F_make - F_buy) / (V_buy - V_make);
+            
+            // Plotting
+            let x = [0, Q_be * 2];
+            if(Q_be < 0) x = [0, 1000]; // Fallback if slopes diverge
+            
+            let y_make = x.map(q => F_make + V_make * q);
+            let y_buy = x.map(q => F_buy + V_buy * q);
+
+            const trace1 = { x: x, y: y_make, name: 'Make (In-House)', line: {color:'#009CA6', width:3} };
+            const trace2 = { x: x, y: y_buy, name: 'Buy (Outsource)', line: {color:'#f97316', width:3, dash:'dot'} };
+
+            const layout = {
+                margin: {t:10, b:30, l:50, r:10},
+                showlegend: true,
+                legend: {orientation:'h', y:1.1},
+                xaxis: {title: 'Quantity (Units)'},
+                yaxis: {title: 'Total Cost (£)'}
+            };
+
+            Plotly.newPlot('chart-makebuy', [trace1, trace2], layout, {displayModeBar:false});
+
+            // Update Text
+            if(Q_be > 0 && isFinite(Q_be)) {
+                document.getElementById('res-breakeven').innerText = Math.round(Q_be);
+                document.getElementById('rec-text').innerHTML = `If demand > ${Math.round(Q_be)}, <span style="color:#009CA6">MAKE</span>. If less, <span style="color:#f97316">BUY</span>.`;
+            } else {
+                document.getElementById('res-breakeven').innerText = "N/A";
+                document.getElementById('rec-text').innerText = "Costs do not intersect (One option is always cheaper).";
+            }
+        }
+
+        function calcEOQ() {
+            const D = parseFloat(document.getElementById('eoq-demand').value);
+            const C = parseFloat(document.getElementById('eoq-price').value);
+            const S = parseFloat(document.getElementById('eoq-ordercost').value);
+            const H_percent = parseFloat(document.getElementById('eoq-holding').value) / 100;
+            const H = C * H_percent;
+
+            // EOQ Formula
+            const EOQ = Math.sqrt((2 * D * S) / H);
+            const orders = D / EOQ;
+
+            document.getElementById('res-eoq').innerText = Math.round(EOQ);
+            document.getElementById('res-orders').innerText = Math.round(orders);
+
+            // Visualizing Total Cost Curve
+            let q_vals = [];
+            let c_vals = [];
+            for(let i=1; i<=EOQ*3; i+= (EOQ/10)) {
+                let cost = (D/i)*S + (i/2)*H; // Ordering + Holding
+                q_vals.push(i);
+                c_vals.push(cost);
+            }
+
+            const trace = { x: q_vals, y: c_vals, type: 'scatter', line: {color:'#004B5A'} };
+            
+            // Marker for EOQ
+            const minCost = (D/EOQ)*S + (EOQ/2)*H;
+            const tracePoint = { 
+                x: [EOQ], y: [minCost], mode:'markers', 
+                marker: {color:'#f97316', size:12}, name:'Optimal Point' 
+            };
+
+            const layout = {
+                margin: {t:10, b:30, l:50, r:10},
+                xaxis: {title: 'Order Qty'},
+                yaxis: {title: 'Annual Cost (£)'},
+                showlegend: false
+            };
+
+            Plotly.newPlot('chart-eoq', [trace, tracePoint], layout, {displayModeBar:false});
+        }
+
+        // Init
+        calcMakeBuy();
+        calcEOQ();
+
+    </script>
+</body>
+</html>
